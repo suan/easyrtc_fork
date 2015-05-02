@@ -395,36 +395,43 @@ function reshapeTextEntryButton(parentw, parenth) {
 
 function handleWindowResize() {
     var fullpage = document.getElementById('fullpage');
-    fullpage.style.width = window.innerWidth + "px";
-    fullpage.style.height = window.innerHeight + "px";
+    fullpage.style.width = "1000px";
+    fullpage.style.height = "250px";
     connectCount = easyrtc.getConnectionCount();
 
     function applyReshape(obj,  parentw, parenth) {
         var myReshape = obj.reshapeMe(parentw, parenth);
 
         if(typeof myReshape.left !== 'undefined' ) {
-            obj.style.left = Math.round(myReshape.left) + "px";
+            obj.style.left = parseInt(obj.dataset.boxNumber)*parentw/4 + "px";
         }
         if(typeof myReshape.top !== 'undefined' ) {
-            obj.style.top = Math.round(myReshape.top) + "px";
+            obj.style.top = "10px";
         }
         if(typeof myReshape.width !== 'undefined' ) {
-            obj.style.width = Math.round(myReshape.width) + "px";
+            obj.style.width = parentw/4 + "px";
         }
         if(typeof myReshape.height !== 'undefined' ) {
-            obj.style.height = Math.round(myReshape.height) + "px";
+            obj.style.height = parenth + "px";
         }
 
-        var n = obj.childNodes.length;
-        for(var i = 0; i < n; i++ ) {
-            var childNode = obj.childNodes[i];
-            if( childNode.reshapeMe) {
-                applyReshape(childNode, myReshape.width, myReshape.height);
-            }
-        }
+        // var n = obj.childNodes.length;
+        // for(var i = 0; i < n; i++ ) {
+            // var childNode = obj.childNodes[i];
+            // if( childNode.reshapeMe) {
+                // applyReshape(childNode, 250, 250);
+            // }
+        // }
     }
 
-    applyReshape(fullpage, window.innerWidth, window.innerHeight);
+    // applyReshape(fullpage, 1000, 250);
+    var n = fullpage.childNodes.length;
+    for(var i = 0; i < n; i++ ) {
+        var childNode = fullpage.childNodes[i];
+        if( childNode.reshapeMe) {
+            applyReshape(childNode, 1000, 250);
+        }
+    }
 }
 
 
@@ -566,13 +573,13 @@ function loginSuccess() {
 
 function cancelText() {
     document.getElementById('textentryBox').style.display = "none";
-    document.getElementById('textEntryButton').style.display = "block";
+    // document.getElementById('textEntryButton').style.display = "block";
 }
 
 
 function sendText(e) {
     document.getElementById('textentryBox').style.display = "none";
-    document.getElementById('textEntryButton').style.display = "block";
+    // document.getElementById('textEntryButton').style.display = "block";
     var stringToSend = document.getElementById('textentryField').value;
     if( stringToSend && stringToSend != "") {
         for(var i = 0; i < maxCALLERS; i++ ) {
@@ -589,7 +596,7 @@ function sendText(e) {
 function showTextEntry() {
     document.getElementById('textentryField').value = "";
     document.getElementById('textentryBox').style.display = "block";
-    document.getElementById('textEntryButton').style.display = "none";
+    // document.getElementById('textEntryButton').style.display = "none";
     document.getElementById('textentryField').focus();
 }
 
@@ -669,6 +676,9 @@ function messageListener(easyrtcid, msgType, content) {
     }
 }
 
+function setVolume(video) {
+  video.volume = 1 - 0.33*parseInt(video.dataset.boxNumber - 1);
+}
 
 function appInit() {
 
@@ -681,7 +691,7 @@ function appInit() {
     setReshaper('muteButton', muteButtonReshaper);
     setReshaper('textentryBox', reshapeTextEntryBox);
     setReshaper('textentryField', reshapeTextEntryField);
-    setReshaper('textEntryButton', reshapeTextEntryButton);
+    // setReshaper('textEntryButton', reshapeTextEntryButton);
 
     updateMuteImage(false);
     window.onresize = handleWindowResize;
@@ -695,13 +705,15 @@ function appInit() {
         easyrtc.showError("LOST-CONNECTION", "Lost connection to signaling server");
     });
     easyrtc.setOnCall( function(easyrtcid, slot) {
+        console.log("slot=" + slot );
         console.log("getConnection count="  + easyrtc.getConnectionCount() );
         boxUsed[slot+1] = true;
         if(activeBox == 0 ) { // first connection
             collapseToThumb();
-            document.getElementById('textEntryButton').style.display = 'block';
+            // document.getElementById('textEntryButton').style.display = 'block';
         }
         document.getElementById(getIdOfBox(slot+1)).style.visibility = "visible";
+        setVolume(document.getElementById(getIdOfBox(slot+1)));
         handleWindowResize();
     });
 
@@ -716,7 +728,7 @@ function appInit() {
 
             if( easyrtc.getConnectionCount() == 0 ) { // no more connections
                 expandThumb(0);
-                document.getElementById('textEntryButton').style.display = 'none';
+                // document.getElementById('textEntryButton').style.display = 'none';
                 document.getElementById('textentryBox').style.display = 'none';
             }
             handleWindowResize();
